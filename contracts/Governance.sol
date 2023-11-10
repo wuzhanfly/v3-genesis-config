@@ -4,6 +4,8 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorSettingsUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorCountingSimpleUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorVotesUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/governance/IGovernorUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.sol";
 
 import "./Injector.sol";
 
@@ -105,7 +107,7 @@ contract Governance is InjectorContextHolder, GovernorCountingSimpleUpgradeable,
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 descriptionHash
-    ) public payable virtual override onlyProposer returns (uint256) {
+    ) public payable virtual override  returns (uint256) {
         return GovernorUpgradeable.execute(targets, values, calldatas, descriptionHash);
     }
 
@@ -160,7 +162,7 @@ contract Governance is InjectorContextHolder, GovernorCountingSimpleUpgradeable,
         return GovernorSettingsUpgradeable.votingDelay();
     }
 
-    function proposalThreshold() public view virtual override(GovernorUpgradeable, GovernorSettingsUpgradeable) returns (uint256) {
+    function proposalThreshold() public view virtual override(IGovernorUpgradeable, GovernorSettingsUpgradeable) returns (uint256) {
         return GovernorSettingsUpgradeable.proposalThreshold();
     }
 

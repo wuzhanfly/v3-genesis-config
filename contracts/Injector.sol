@@ -25,7 +25,7 @@ abstract contract InjectorContextHolder is Initializable, IInjector {
     IStaking internal _stakingContract;
     ISlashingIndicator internal _slashingIndicatorContract;
     ISystemReward internal _systemRewardContract;
-    // CHZ defined contracts
+    // BPC defined contracts
     IStakingPool internal _stakingPoolContract;
     IGovernance internal _governanceContract;
     IChainConfig internal _chainConfigContract;
@@ -45,7 +45,7 @@ abstract contract InjectorContextHolder is Initializable, IInjector {
         _stakingContract = IStaking(0x0000000000000000000000000000000000001000);
         _slashingIndicatorContract = ISlashingIndicator(0x0000000000000000000000000000000000001001);
         _systemRewardContract = ISystemReward(0x0000000000000000000000000000000000001002);
-        // CHZ defined addresses
+        // BPC defined addresses
         _stakingPoolContract = IStakingPool(0x0000000000000000000000000000000000007001);
         _governanceContract = IGovernance(0x0000000000000000000000000000000000007002);
         _chainConfigContract = IChainConfig(0x0000000000000000000000000000000000007003);
@@ -69,7 +69,7 @@ abstract contract InjectorContextHolder is Initializable, IInjector {
         _stakingContract = stakingContract;
         _slashingIndicatorContract = slashingIndicatorContract;
         _systemRewardContract = systemRewardContract;
-        // CHZ-defined
+        // BPC-defined
         _stakingPoolContract = stakingPoolContract;
         _governanceContract = governanceContract;
         _chainConfigContract = chainConfigContract;

@@ -1,5 +1,5 @@
 const Web3 = require('web3'),
-  fs = require('fs');
+    fs = require('fs');
 
 const ABI_STAKING = require('./build/abi/Staking.json');
 const ABI_GOVERNANCE = require('./build/abi/Governance.json');
@@ -94,6 +94,8 @@ const proposalStates = ['Pending', 'Active', 'Canceled', 'Defeated', 'Succeeded'
     keystoreKeys[`0x${address}`.toLowerCase()] = web3.eth.accounts.decrypt(JSON.parse(fs.readFileSync(`./keystore/${filePath}`, 'utf8')), keystorePassword);
   }
   const activeValidatorSet = await staking.methods.getValidators().call();
+  console.log(activeValidatorSet)
+
   let feedAll = false,
     faucetAddress = null;
   const feedValidator = async (validatorAddress) => {
