@@ -4,13 +4,10 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorSettingsUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorCountingSimpleUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorVotesUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/governance/IGovernorUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.sol";
 
 import "./Injector.sol";
 
 contract Governance is InjectorContextHolder, GovernorCountingSimpleUpgradeable, GovernorSettingsUpgradeable, IGovernance {
-
     event ProposerAdded(address proposer);
     event ProposerRemoved(address proposer);
 
@@ -134,8 +131,7 @@ contract Governance is InjectorContextHolder, GovernorCountingSimpleUpgradeable,
     }
 
     function _validatorVotingPowerAt(address validator, uint256 blockNumber) internal view returns (uint256) {
-        // find validator votes at block number
-        uint64 epoch = uint64(blockNumber / _chainConfigContract.getEpochBlockInterval());
+        uint64 epoch = uint64(blockNumber / _chainConfigContract.getEpochBlockInterval()); //
         (,uint8 status, uint256 totalDelegated,,,,,,) = _stakingContract.getValidatorStatusAtEpoch(validator, epoch);
         // only active validators power makes sense
         if (status != 0x01) {
