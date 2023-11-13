@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import "./Injector.sol";
 
 contract Staking is IStaking, InjectorContextHolder {
-    uint256 internal constant BALANCE_COMPACT_PRECISION = 1e9;
+    uint256 internal constant BALANCE_COMPACT_PRECISION = 1e10;
     uint16 internal constant COMMISSION_RATE_MIN_VALUE = 0; // 0%
     uint16 internal constant COMMISSION_RATE_MAX_VALUE = 3000; // 30%
     uint64 internal constant TRANSFER_GAS_LIMIT = 30000;
@@ -152,6 +152,40 @@ contract Staking is IStaking, InjectorContextHolder {
         );
     }
 
+    function _touchValidatorSnapshot(Validator memory validator, uint64 epoch) internal returns (ValidatorSnapshot storage) {
+        ValidatorSnapshot storage snapshot = _validatorSnapshots[validator.validatorAddress][epoch];
+        // if snapshot is already initialized then just return it
+        if (snapshot.totalDelegated > 0) {
+            return snapshot;
+        }
+        // find previous snapshot to copy parameters from it
+        ValidatorSnapshot memory lastModifiedSnapshot = _validatorSnapshots[validator.validatorAddress][validator.changedAt];
+        // last modified snapshot might store zero value, for first delegation it might happen and its not critical
+        snapshot.totalDelegated = lastModifiedSnapshot.totalDelegated;
+        snapshot.commissionRate = lastModifiedSnapshot.commissionRate;
+        // we must save last affected epoch for this validator to be able to restore total delegated
+        // amount in the future (check condition upper)
+        if (epoch > validator.changedAt) {
+            validator.changedAt = epoch;
+        }
+        return snapshot;
+    }
+
+
+    function _fetchValidatorSnapshot(Validator memory validator, uint64 epoch) internal view returns (ValidatorSnapshot memory) {
+        ValidatorSnapshot memory snapshot = _validatorSnapshots[validator.validatorAddress][epoch];
+        // if snapshot is already initialized then just return it
+        if (snapshot.totalDelegated > 0) {
+            return snapshot;
+        }
+        // find previous snapshot to copy parameters from it
+        ValidatorSnapshot memory lastModifiedSnapshot = _validatorSnapshots[validator.validatorAddress][validator.changedAt];
+        // last modified snapshot might store zero value, for first delegation it might happen and its not critical
+        snapshot.totalDelegated = lastModifiedSnapshot.totalDelegated;
+        snapshot.commissionRate = lastModifiedSnapshot.commissionRate;
+        // return existing or new snapshot
+        return snapshot;
+    }
     function getValidatorByOwner(address owner) external view override returns (address) {
         return _validatorOwners[owner];
     }
@@ -201,39 +235,6 @@ contract Staking is IStaking, InjectorContextHolder {
         return _currentEpoch() + 1;
     }
 
-    function _touchValidatorSnapshot(Validator memory validator, uint64 epoch) internal returns (ValidatorSnapshot storage) {
-        ValidatorSnapshot storage snapshot = _validatorSnapshots[validator.validatorAddress][epoch];
-        // if snapshot is already initialized then just return it
-        if (snapshot.totalDelegated > 0) {
-            return snapshot;
-        }
-        // find previous snapshot to copy parameters from it
-        ValidatorSnapshot memory lastModifiedSnapshot = _validatorSnapshots[validator.validatorAddress][validator.changedAt];
-        // last modified snapshot might store zero value, for first delegation it might happen and its not critical
-        snapshot.totalDelegated = lastModifiedSnapshot.totalDelegated;
-        snapshot.commissionRate = lastModifiedSnapshot.commissionRate;
-        // we must save last affected epoch for this validator to be able to restore total delegated
-        // amount in the future (check condition upper)
-        if (epoch > validator.changedAt) {
-            validator.changedAt = epoch;
-        }
-        return snapshot;
-    }
-
-    function _fetchValidatorSnapshot(Validator memory validator, uint64 epoch) internal view returns (ValidatorSnapshot memory) {
-        ValidatorSnapshot memory snapshot = _validatorSnapshots[validator.validatorAddress][epoch];
-        // if snapshot is already initialized then just return it
-        if (snapshot.totalDelegated > 0 || epoch < validator.changedAt) {
-            return snapshot;
-        }
-        // find previous snapshot to copy parameters from it
-        ValidatorSnapshot memory lastModifiedSnapshot = _validatorSnapshots[validator.validatorAddress][validator.changedAt];
-        // last modified snapshot might store zero value, for first delegation it might happen and its not critical
-        snapshot.totalDelegated = lastModifiedSnapshot.totalDelegated;
-        snapshot.commissionRate = lastModifiedSnapshot.commissionRate;
-        // return existing or new snapshot
-        return snapshot;
-    }
 
     function _delegateTo(address fromDelegator, address toValidator, uint256 amount) internal {
         // check is minimum delegate amount

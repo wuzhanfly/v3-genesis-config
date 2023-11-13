@@ -7,6 +7,7 @@ import "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorVotesU
 
 import "./Injector.sol";
 
+
 contract Governance is InjectorContextHolder, GovernorCountingSimpleUpgradeable, GovernorSettingsUpgradeable, IGovernance {
     event ProposerAdded(address proposer);
     event ProposerRemoved(address proposer);
@@ -53,6 +54,23 @@ contract Governance is InjectorContextHolder, GovernorCountingSimpleUpgradeable,
     ) public virtual override onlyProposer returns (uint256) {
         return GovernorUpgradeable.propose(targets, values, calldatas, description);
     }
+    function execute(
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        bytes32 descriptionHash
+    ) public payable virtual override  returns (uint256) {
+
+        return GovernorUpgradeable.execute(targets, values, calldatas, descriptionHash);
+    }
+
+//    function cancel(address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes32 descriptionHash)
+//    internal
+//    override onlyProposer (IGovernorUpgradeable, GovernorSettingsUpgradeable)
+//    returns (uint256)
+//    {
+//        return GovernorUpgradeable._cancel(targets, values, calldatas, descriptionHash);
+//    }
 
     function addProposer(address proposer) external onlyFromGovernance {
         _addProposer(proposer);
@@ -99,14 +117,8 @@ contract Governance is InjectorContextHolder, GovernorCountingSimpleUpgradeable,
         return _proposerRegistry[account];
     }
 
-    function execute(
-        address[] memory targets,
-        uint256[] memory values,
-        bytes[] memory calldatas,
-        bytes32 descriptionHash
-    ) public payable virtual override  returns (uint256) {
-        return GovernorUpgradeable.execute(targets, values, calldatas, descriptionHash);
-    }
+
+
 
     function votingPeriod() public view override(IGovernorUpgradeable, GovernorSettingsUpgradeable) returns (uint256) {
         // let use re-defined voting period for the proposals
