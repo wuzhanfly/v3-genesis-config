@@ -170,7 +170,7 @@ contract Governance is InjectorContextHolder, GovernorCountingSimpleUpgradeable,
         return GovernorSettingsUpgradeable.votingDelay();
     }
 
-    function proposalThreshold() public view virtual override(IGovernorUpgradeable, GovernorSettingsUpgradeable) returns (uint256) {
+    function proposalThreshold() public view virtual override(GovernorUpgradeable, GovernorSettingsUpgradeable) returns (uint256) {
         return GovernorSettingsUpgradeable.proposalThreshold();
     }
 
