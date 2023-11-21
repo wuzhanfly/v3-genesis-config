@@ -20,5 +20,3 @@ How to generate genesis files
 make all
 ```
 
-### Documentation
-Find our latest documentation at https://docs.chiliz.com
