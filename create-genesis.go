@@ -116,6 +116,8 @@ var chainConfigAddress = common.HexToAddress("0x00000000000000000000000000000000
 var runtimeUpgradeAddress = common.HexToAddress("0x0000000000000000000000000000000000007004")
 var deployerProxyAddress = common.HexToAddress("0x0000000000000000000000000000000000007005")
 var intermediarySystemAddress = common.HexToAddress("0xfffffffffffffffffffffffffffffffffffffffe")
+var tokenManagerContract = common.HexToAddress("0x0000000000000000000000000000000000001008")
+var crossChainContract = common.HexToAddress("0x0000000000000000000000000000000000002000")
 
 //go:embed build/contracts/RuntimeProxy.json
 var runtimeProxyArtifact []byte
