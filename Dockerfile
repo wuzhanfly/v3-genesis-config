@@ -16,6 +16,3 @@ WORKDIR /build
 COPY --from=build /build/create-genesis /build/create-genesis
 RUN chmod +x /build/create-genesis
 ENTRYPOINT ["/build/create-genesis"]
-
-
-RUN apk add --no-cache openssl ncurses-libs
