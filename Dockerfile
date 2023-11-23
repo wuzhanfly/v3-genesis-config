@@ -2,7 +2,7 @@ FROM golang:1.17.8-alpine3.15 AS build
 WORKDIR /build
 RUN apk upgrade --no-cache \
     && apk add --no-cache \
-    nodejs npm yarn git make cmake gcc musl-dev linux-headers git build-base libc-dev libgcc libstdc++  bash
+    nodejs npm yarn git make cmake gcc musl-dev linux-headers git bash build-base libc-dev
 COPY package.json yarn.lock ./
 RUN yarn
 COPY . ./
