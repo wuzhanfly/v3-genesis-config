@@ -9,7 +9,7 @@ COPY . ./
 RUN yarn compile
 RUN go build -o /build/create-genesis ./
 
-FROM golang:1.18-alpine3.16 AS run
+FROM golang:1.17.8-alpine3.15 AS run
 WORKDIR /build
 COPY --from=build /build/create-genesis /build/create-genesis
 RUN chmod +x /build/create-genesis
