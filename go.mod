@@ -15,6 +15,7 @@ require (
 	github.com/cespare/xxhash/v2 v2.1.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/deckarep/golang-set v0.0.0-20180603214616-504e848d77ea // indirect
+	github.com/edsrzf/mmap-go v1.0.0 // indirect
 	github.com/gballet/go-libpcsclite v0.0.0-20190607065134-2772fd86a8ff // indirect
 	github.com/go-logfmt/logfmt v0.4.0 // indirect
 	github.com/go-ole/go-ole v1.2.1 // indirect
@@ -48,4 +49,5 @@ require (
 	gopkg.in/natefinch/npipe.v2 v2.0.0-20160621034901-c1b8fa8bdcce // indirect
 )
 
-replace github.com/ethereum/go-ethereum v1.10.17 => ../bas-template-bsc
+//replace github.com/ethereum/go-ethereum v1.10.17 => github.com/ankr-network/bas-template-bsc v0.0.0-20220404131216-e5ac3a4a037a
+replace github.com/ethereum/go-ethereum v1.10.17 => github.com/wuzhanfly/bpc-v3 v0.0.0-20231123193547-1ad3bcfa64c2
