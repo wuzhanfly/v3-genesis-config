@@ -50,4 +50,5 @@ require (
 )
 
 //replace github.com/ethereum/go-ethereum v1.10.17 => github.com/ankr-network/bas-template-bsc v0.0.0-20220404131216-e5ac3a4a037a
-replace github.com/ethereum/go-ethereum v1.10.17 => github.com/wuzhanfly/bpc-v3 v0.0.0-20231123193547-1ad3bcfa64c2
+
+replace github.com/ethereum/go-ethereum v1.10.17 => github.com/wuzhanfly/bpc-v3 v0.0.0-20231124124031-bef9911f671e
