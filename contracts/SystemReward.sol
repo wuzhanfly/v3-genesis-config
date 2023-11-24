@@ -6,10 +6,10 @@ import "./InjectorContextHolder.sol";
 contract SystemReward is ISystemReward, InjectorContextHolder {
 
     /**
-     * Parlia has 1000000000 ether limit for max fee, its better to enable auto claim
+     * Parlia has 100 ether limit for max fee, its better to enable auto claim
      * for the system treasury otherwise it might cause lost of funds
      */
-    uint256 public constant TREASURY_AUTO_CLAIM_THRESHOLD = 1000000000 ether;
+    uint256 public constant TREASURY_AUTO_CLAIM_THRESHOLD = 50 ether;
     uint256 public constant TREASURY_MIN_CLAIM_THRESHOLD = 10 wei;
     /**
      * Here is min/max share values.
@@ -47,14 +47,14 @@ contract SystemReward is ISystemReward, InjectorContextHolder {
         IRuntimeUpgrade runtimeUpgradeContract,
         IDeployerProxy deployerProxyContract
     ) InjectorContextHolder(
-        stakingContract,
-        slashingIndicatorContract,
-        systemRewardContract,
-        stakingPoolContract,
-        governanceContract,
-        chainConfigContract,
-        runtimeUpgradeContract,
-        deployerProxyContract
+    stakingContract,
+    slashingIndicatorContract,
+    systemRewardContract,
+    stakingPoolContract,
+    governanceContract,
+    chainConfigContract,
+    runtimeUpgradeContract,
+    deployerProxyContract
     ) {
     }
 
@@ -108,7 +108,6 @@ contract SystemReward is ISystemReward, InjectorContextHolder {
         if (_systemFee >= TREASURY_AUTO_CLAIM_THRESHOLD) {
             _claimSystemFee();
         }
-        require(address(msg.sender) == address(_STAKING_CONTRACT), "not a staking contract");
     }
 
     function _claimSystemFee() internal {
