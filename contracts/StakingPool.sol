@@ -118,6 +118,13 @@ contract StakingPool is InjectorContextHolder, IStakingPool {
         // we're doing upper rounding here
         return (validatorPool.sharesSupply * 1e18 + stakeWithRewards - 1) / stakeWithRewards;
     }
+    function _currentEpoch() internal view returns (uint64) {
+        return uint64(block.number / _CHAIN_CONFIG_CONTRACT.getEpochBlockInterval());
+    }
+
+    function _nextEpoch() internal view returns (uint64) {
+        return _currentEpoch() + 1;
+    }
 
     function stake(address validator) external payable advanceStakingRewards(validator) override {
         ValidatorPool memory validatorPool = _getValidatorPool(validator);
@@ -147,7 +154,7 @@ contract StakingPool is InjectorContextHolder, IStakingPool {
         _pendingUnstakes[validator][msg.sender] = PendingUnstake({
             amount : amount,
             shares : shares,
-            epoch : _STAKING_CONTRACT.nextEpoch() + _CHAIN_CONFIG_CONTRACT.getUndelegatePeriod()
+            epoch : _nextEpoch() + _CHAIN_CONFIG_CONTRACT.getUndelegatePeriod()
         });
         validatorPool.pendingUnstake += amount;
         _validatorPools[validator] = validatorPool;
@@ -169,7 +176,7 @@ contract StakingPool is InjectorContextHolder, IStakingPool {
         _STAKING_CONTRACT.claimPendingUndelegates(validator);
         // make sure user have pending unstake
         require(pendingUnstake.epoch > 0, "nothing to claim");
-        require(pendingUnstake.epoch <= _STAKING_CONTRACT.currentEpoch(), "not ready");
+        require(pendingUnstake.epoch <= _currentEpoch(), "not ready");
         // updates shares and validator pool params
         _stakerShares[validator][msg.sender] -= shares;
         ValidatorPool memory validatorPool = _getValidatorPool(validator);
