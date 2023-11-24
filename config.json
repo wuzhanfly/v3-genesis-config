@@ -78,8 +78,13 @@
     "0xF016A30Aeb1AaFa2EB4b2deBf981a153246C9507": "0xee3a5f48a68b580000000",
     "0xB38eA6371499c1B364C61bF15404760374962339": "0xee3a5f48a68b580000000"
   },
+  "supportedForks": {
+    "verifyParliaBlock": "0x0",
+    "blockRewardsBlock": "0x0",
+    "FastFinalityBlock": "0x0"
+  },
   "votingPeriod": 60,
-  "blockRewards": "0x1cbc5677840b10000",
+  "blockRewards": "0x72f159de102c4000",
   "faucet": {
     "0x21748156443D5E4305ED0ff96439e410fB9f596A": "0x19d971e4fe8401000000000",
     "0x6b52FAd1C487316906c55f5C6FD2A575108c6E41": "0x39e7139a8c08fa000000000",
