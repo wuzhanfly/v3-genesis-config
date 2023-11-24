@@ -114,15 +114,15 @@ contract Staking is IStaking, InjectorContextHolder {
         Validator memory validator = _validatorsMap[validatorAddress];
         ValidatorSnapshot memory snapshot = _validatorSnapshots[validator.validatorAddress][validator.changedAt];
         return (
-        ownerAddress = validator.ownerAddress,
-        status = uint8(validator.status),
-        totalDelegated = _unpackCompact(snapshot.totalDelegated),
-        slashesCount = snapshot.slashesCount,
-        changedAt = validator.changedAt,
-        jailedBefore = validator.jailedBefore,
-        claimedAt = validator.claimedAt,
-        commissionRate = snapshot.commissionRate,
-        totalRewards = snapshot.totalRewards
+            ownerAddress = validator.ownerAddress,
+            status = uint8(validator.status),
+            totalDelegated = _unpackCompact(snapshot.totalDelegated),
+            slashesCount = snapshot.slashesCount,
+            changedAt = validator.changedAt,
+            jailedBefore = validator.jailedBefore,
+            claimedAt = validator.claimedAt,
+            commissionRate = snapshot.commissionRate,
+            totalRewards = snapshot.totalRewards
         );
     }
 
@@ -140,15 +140,15 @@ contract Staking is IStaking, InjectorContextHolder {
         Validator memory validator = _validatorsMap[validatorAddress];
         ValidatorSnapshot memory snapshot = _fetchValidatorSnapshot(validator, epoch);
         return (
-        ownerAddress = validator.ownerAddress,
-        status = uint8(validator.status),
-        totalDelegated = _unpackCompact(snapshot.totalDelegated),
-        slashesCount = snapshot.slashesCount,
-        changedAt = validator.changedAt,
-        jailedBefore = validator.jailedBefore,
-        claimedAt = validator.claimedAt,
-        commissionRate = snapshot.commissionRate,
-        totalRewards = snapshot.totalRewards
+            ownerAddress = validator.ownerAddress,
+            status = uint8(validator.status),
+            totalDelegated = _unpackCompact(snapshot.totalDelegated),
+            slashesCount = snapshot.slashesCount,
+            changedAt = validator.changedAt,
+            jailedBefore = validator.jailedBefore,
+            claimedAt = validator.claimedAt,
+            commissionRate = snapshot.commissionRate,
+            totalRewards = snapshot.totalRewards
         );
     }
 
