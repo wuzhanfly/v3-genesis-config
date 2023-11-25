@@ -19,6 +19,3 @@ How to generate genesis files
 ```bash
 make all
 ```
-
-### Documentation
-Find our latest documentation at https://docs.chiliz.com
