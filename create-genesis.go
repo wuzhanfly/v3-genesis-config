@@ -373,6 +373,7 @@ func defaultGenesisConfig(config genesisConfig) *core.Genesis {
 		NielsBlock:          big.NewInt(0),
 		MirrorSyncBlock:     big.NewInt(0),
 		BrunoBlock:          big.NewInt(0),
+		BlockRewardsBlock:   big.NewInt(0),
 		// Chiliz V2 forks
 		RuntimeUpgradeBlock:    decimalToBigInt(config.Forks.RuntimeUpgradeBlock),
 		DeployOriginBlock:      decimalToBigInt(config.Forks.DeployOriginBlock),
