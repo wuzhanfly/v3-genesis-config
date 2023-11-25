@@ -8,7 +8,6 @@ contract Staking is IStaking, InjectorContextHolder {
     uint16 internal constant COMMISSION_RATE_MIN_VALUE = 0; // 0%
     uint16 internal constant COMMISSION_RATE_MAX_VALUE = 3000; // 30%
     uint64 internal constant TRANSFER_GAS_LIMIT = 30000;
-
     // validator events
     event ValidatorAdded(address indexed validator, address owner, uint8 status, uint16 commissionRate);
     event ValidatorModified(address indexed validator, address owner, uint8 status, uint16 commissionRate);
@@ -17,7 +16,6 @@ contract Staking is IStaking, InjectorContextHolder {
     event ValidatorSlashed(address indexed validator, uint32 slashes, uint64 epoch);
     event ValidatorJailed(address indexed validator, uint64 epoch);
     event ValidatorReleased(address indexed validator, uint64 epoch);
-
     // staker events
     event Delegated(address indexed validator, address indexed staker, uint256 amount, uint64 epoch);
     event Undelegated(address indexed validator, address indexed staker, uint256 amount, uint64 epoch);

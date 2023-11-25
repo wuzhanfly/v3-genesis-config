@@ -44,4 +44,4 @@ require (
 	gopkg.in/natefinch/npipe.v2 v2.0.0-20160621034901-c1b8fa8bdcce // indirect
 )
 
-replace github.com/ethereum/go-ethereum v1.10.17 => github.com/wuzhanfly/bpc-v3 v0.0.0-20231107194224-5ecdadb73865
+replace github.com/ethereum/go-ethereum v1.10.17 => github.com/wuzhanfly/bpc-v3 v0.0.0-20231125120429-b049491c65a6

@@ -99,7 +99,7 @@ func simulateSystemContract(genesis *core.Genesis, systemContract common.Address
 		Debug:  true,
 		Tracer: tracer,
 	})
-	deployedBytecode, _, err := evm.CreateWithAddress(vm.AccountRef(common.Address{}), bytecode, 10_000_000, big.NewInt(0), systemContract)
+	deployedBytecode, _, err := evm.CreateWithAddress(vm.AccountRef(common.Address{}), bytecode, 100_000_000, big.NewInt(0), systemContract)
 	if err != nil {
 		for _, c := range deployedBytecode[64:] {
 			if c >= 32 && c <= unicode.MaxASCII {
@@ -212,6 +212,7 @@ type genesisConfig struct {
 	CommissionRate  int64                     `json:"commissionRate"`
 	InitialStakes   map[common.Address]string `json:"initialStakes"`
 	Forks           BPCForks                  `json:"forks"`
+	BlockRewards    *math.HexOrDecimal256     `json:"blockRewards"`
 }
 
 func invokeConstructorOrPanic(genesis *core.Genesis, contract common.Address, rawArtifact []byte, typeNames []string, params []interface{}, silent bool, balance *big.Int) {
@@ -381,6 +382,7 @@ func defaultGenesisConfig(config genesisConfig) *core.Genesis {
 		Parlia: &params.ParliaConfig{
 			Period: 3,
 			// epoch length is managed by consensus params
+			BlockRewards: decimalToBigInt(config.BlockRewards),
 		},
 	}
 	return &core.Genesis{
@@ -626,6 +628,7 @@ var mainNetConfig = genesisConfig{
 		MaxDelegateTotalAmount:   (*math.HexOrDecimal256)(hexutil.MustDecodeBig("0x56BC75E2D63100000")),     // minimum staking amount for delegators (in CHZ) - 100
 	},
 	VotingPeriod: 271600, // 7 days
+	BlockRewards: (*math.HexOrDecimal256)(hexutil.MustDecodeBig("0x1cbc5677840b10000")),
 	InitialStakes: map[common.Address]string{
 		common.HexToAddress("0x2045A60c9BFFCCEEB5a1AAD0e22A75965d221882"): "0x84595161401484A000000", // Validator 10,000,000 CHZ
 		common.HexToAddress("0x811ceF18Ac8b28e0c4A54aB8220a51897ba9C489"): "0x84595161401484A000000", // Validator 10,000,000 CHZ
@@ -700,22 +703,22 @@ func main() {
 		}
 		return
 	}
-	fmt.Printf("building localnet\n")
-	if err := createGenesisConfig(localNetConfig, "localnet.json", false); err != nil {
-		panic(err)
-	}
-	fmt.Printf("\nbuilding devnet\n")
-	if err := createGenesisConfig(devNetConfig, "devnet.json", false); err != nil {
-		panic(err)
-	}
-	fmt.Printf("\nbuilding scoville testnet\n")
-	if err := createGenesisConfig(testNetConfig, "testnet.json", true); err != nil {
-		panic(err)
-	}
-	fmt.Printf("\nbuilding spicy testnet\n")
-	if err := createGenesisConfig(spicyConfig, "spicy.json", true); err != nil {
-		panic(err)
-	}
+	//fmt.Printf("building localnet\n")
+	//if err := createGenesisConfig(localNetConfig, "localnet.json", false); err != nil {
+	//	panic(err)
+	//}
+	//fmt.Printf("\nbuilding devnet\n")
+	//if err := createGenesisConfig(devNetConfig, "devnet.json", false); err != nil {
+	//	panic(err)
+	//}
+	//fmt.Printf("\nbuilding scoville testnet\n")
+	//if err := createGenesisConfig(testNetConfig, "testnet.json", true); err != nil {
+	//	panic(err)
+	//}
+	//fmt.Printf("\nbuilding spicy testnet\n")
+	//if err := createGenesisConfig(spicyConfig, "spicy.json", true); err != nil {
+	//	panic(err)
+	//}
 	fmt.Printf("\nbuilding mainnet\n")
 	if err := createGenesisConfig(mainNetConfig, "mainnet.json", true); err != nil {
 		panic(err)
