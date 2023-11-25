@@ -89,9 +89,9 @@ contract SystemReward is ISystemReward, InjectorContextHolder {
         // increase total system fee
         _systemFee += msg.value;
         // once max fee threshold is reached lets do force claim
-        if (_systemFee >= TREASURY_AUTO_CLAIM_THRESHOLD) {
-            _claimSystemFee();
-        }
+//        if (_systemFee >= TREASURY_AUTO_CLAIM_THRESHOLD) {
+//            _claimSystemFee();
+//        }
     }
 
     function _claimSystemFee() internal {
