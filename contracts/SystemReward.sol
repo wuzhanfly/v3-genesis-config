@@ -12,6 +12,10 @@ contract SystemReward is ISystemReward, InjectorContextHolder {
     // Epoch => user => Reward
     mapping(uint256 => mapping(address => uint256)) private _rewardSnapshotMap;
 
+    event WithdrawSystemRewards(address indexed validator,uint256 amount, uint256 epoch);
+
+    event WithdrawMultipleEpochSystemRewards(address indexed validator,uint256 amount, uint256[]  epochs);
+
     constructor(bytes memory constructorParams) InjectorContextHolder(constructorParams) {
     }
     function ctor(address[] calldata accounts, uint16[] calldata shares) external onlyInitializing {
@@ -89,6 +93,8 @@ contract SystemReward is ISystemReward, InjectorContextHolder {
         // 安全地转移奖励给用户
         (bool success, ) = msg.sender.call{value: totalReward}("");
         require(success, "Reward transfer failed");
+        emit WithdrawMultipleEpochSystemRewards(msg.sender,totalReward,epochs);
+
     }
 
     function withdrawRewards(uint256 epoch) external {
@@ -103,5 +109,6 @@ contract SystemReward is ISystemReward, InjectorContextHolder {
         // 安全地转移奖励给用户
         (bool success, ) = msg.sender.call{value: reward}("");
         require(success, "Reward transfer failed");
+        emit WithdrawSystemRewards(msg.sender,reward,epoch);
     }
 }
