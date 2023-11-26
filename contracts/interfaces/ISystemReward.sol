@@ -3,9 +3,9 @@ pragma solidity ^0.8.0;
 
 interface ISystemReward {
 
-    function updateDistributionShare(address[] calldata accounts, uint16[] calldata shares) external;
+    function getSystemReward(address user, uint256 epoch) external view returns (uint256);
 
-    function getSystemFee() external view returns (uint256);
+    function withdrawRewards(uint256 epoch) external;
 
-    function claimSystemFee() external;
+    function withdrawMultipleEpochRewards(uint256[] calldata epochs) external;
 }

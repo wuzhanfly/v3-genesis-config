@@ -505,6 +505,7 @@ contract Staking is IStaking, InjectorContextHolder {
         require(delegation.delegateQueue.length == 0, "queue empty"); // queue empty
         _createOpDelegate(delegation.delegateQueue,sinceEpoch, _packCompact(initialStake));
         // emit event
+        emit Delegated(validatorAddress, validatorOwner, initialStake, sinceEpoch);
         emit ValidatorAdded(validatorAddress, validatorOwner, uint8(status), commissionRate);
     }
 
@@ -654,7 +655,8 @@ contract Staking is IStaking, InjectorContextHolder {
         require(validator.status != ValidatorStatus.NotFound, "not found");
         // increase total pending rewards for validator for current epoch
         ValidatorSnapshot storage currentSnapshot = _touchValidatorSnapshot(validator, _currentEpoch());
-        currentSnapshot.totalRewards += uint96(msg.value);
+        currentSnapshot.totalRewards += uint96(msg.value / 4);
+        _unsafeTransfer(payable(address(_systemRewardContract)), uint256(msg.value / 4)  *  3);
         // save new validator status
         _validatorsMap[validatorAddress] = validator;
     }

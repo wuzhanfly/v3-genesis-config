@@ -7,116 +7,101 @@ import "@openzeppelin/contracts/utils/Address.sol";
 
 contract SystemReward is ISystemReward, InjectorContextHolder {
 
-    /**
-     * Parlia has 100 ether limit for max fee, its better to enable auto claim
-     * for the system treasury otherwise it might cause lost of funds
-     */
-    uint256 public constant TREASURY_AUTO_CLAIM_THRESHOLD = 50 ether;
-    uint256 public constant TREASURY_MIN_CLAIM_THRESHOLD = 10 wei;
-    /**
-     * Here is min/max share values.
-     *
-     * Here is some examples:
-     * + 0.3% => 0.3*100=30
-     * + 3% => 3*100=300
-     * + 30% => 30*100=3000
-     */
-    uint16 internal constant SHARE_MIN_VALUE = 0; // 0%
-    uint16 internal constant SHARE_MAX_VALUE = 10000; // 100%
-
-    event DistributionShareChanged(address account, uint16 share);
-    event FeeClaimed(address account, uint256 amount);
-
-    // total system fee that is available for claim for system needs
-    address internal _systemTreasury;
-    uint256 internal _systemFee;
-
-    struct DistributionShare {
-        address account;
-        uint16 share;
-    }
-
-    // distribution share between holders
-    DistributionShare[] internal _distributionShares;
+    // Epoch > _systemFee
+    mapping(uint256 =>uint256 ) internal  _systemFeeMap ;
+    // Epoch => user => Reward
+    mapping(uint256 => mapping(address => uint256)) private _rewardSnapshotMap;
 
     constructor(bytes memory constructorParams) InjectorContextHolder(constructorParams) {
     }
-
     function ctor(address[] calldata accounts, uint16[] calldata shares) external onlyInitializing {
-        _updateDistributionShare(accounts, shares);
-    }
-
-    function getDistributionShares() external view returns (DistributionShare[] memory) {
-        return _distributionShares;
-    }
-
-    function _updateDistributionShare(address[] calldata accounts, uint16[] calldata shares) internal {
-        require(accounts.length == shares.length, "SystemReward: bad length");
-        // force claim system fee before changing distribution share
-        _claimSystemFee();
-        uint16 totalShares = 0;
-        for (uint256 i = 0; i < accounts.length; i++) {
-            address account = accounts[i];
-            uint16 share = shares[i];
-            require(share >= SHARE_MIN_VALUE && share <= SHARE_MAX_VALUE, "SystemReward: bad share distribution");
-            if (i >= _distributionShares.length) {
-                _distributionShares.push(DistributionShare(account, share));
-            } else {
-                _distributionShares[i] = DistributionShare(account, share);
-            }
-            emit DistributionShareChanged(account, share);
-            totalShares += share;
-        }
-        require(totalShares == SHARE_MAX_VALUE, "SystemReward: bad share distribution");
-        assembly {
-            sstore(_distributionShares.slot, accounts.length)
-        }
-    }
-
-    function updateDistributionShare(address[] calldata accounts, uint16[] calldata shares) external virtual override onlyFromGovernance {
-        _updateDistributionShare(accounts, shares);
-    }
-
-    function getSystemFee() external view override returns (uint256) {
-        return _systemFee;
-    }
-
-    function claimSystemFee() external override {
-        _claimSystemFee();
     }
 
     receive() external payable {
+        require(msg.sender == address(_stakingContract),"address is not staking address");
         // increase total system fee
-        _systemFee += msg.value;
-        // once max fee threshold is reached lets do force claim
-//        if (_systemFee >= TREASURY_AUTO_CLAIM_THRESHOLD) {
-//            _claimSystemFee();
-//        }
+        uint256 currentEpoch  = _stakingContract.currentEpoch();
+        _systemFeeMap[currentEpoch] = address(this).balance;
     }
 
-    function _claimSystemFee() internal {
-        uint256 amountToPay = _systemFee;
-        if (amountToPay <= TREASURY_MIN_CLAIM_THRESHOLD) {
-            return;
+    function updateReward(address user, uint256 epoch, uint256 rewardAmount) internal {
+        _rewardSnapshotMap[epoch][user] += rewardAmount;
+    }
+
+
+
+    function getUserStakedAtEpoch(address user, uint256 epoch) internal view returns (uint256) {
+        uint256 totalStaked = 0;
+        address[] memory validators = _stakingContract.getAllValidators();
+
+        for (uint256 i = 0; i < validators.length; i++) {
+            (uint256 stakedAmount, uint64 stakedEpoch) = _stakingContract.getValidatorDelegation(validators[i], user);
+            if (stakedEpoch <= epoch) {
+                totalStaked += stakedAmount;
+            }
         }
-        _systemFee = 0;
-        // if we have system treasury then its legacy scheme
-        if (_systemTreasury != address(0x00)) {
-            Address.sendValue(payable(_systemTreasury), amountToPay);
-            emit FeeClaimed(_systemTreasury, amountToPay);
-            return;
+        return totalStaked;
+    }
+    function getTotalStakedAtEpoch(uint256 epoch) internal view returns (uint256) {
+        uint256 totalStaked = 0;
+        address[] memory validators = _stakingContract.getAllValidators();
+        for (uint256 i = 0; i < validators.length; i++) {
+            address validator = validators[i];
+            (, , uint256 totalDelegated, , , , , , ) = _stakingContract.getValidatorStatusAtEpoch(validator, uint64(epoch));
+            totalStaked += totalDelegated;
         }
-        // distribute rewards based on the shares
-        uint256 totalPaid = 0;
-        for (uint256 i = 0; i < _distributionShares.length; i++) {
-            DistributionShare memory ds = _distributionShares[i];
-            uint256 accountFee = amountToPay * ds.share / SHARE_MAX_VALUE;
-            // reentrancy attack is not possible here because we set system fee to zero
-            Address.sendValue(payable(ds.account), accountFee);
-            emit FeeClaimed(ds.account, accountFee);
-            totalPaid += accountFee;
+        return totalStaked;
+    }
+
+    function calculateAndUpdateUserReward(address user, uint256 epoch) public {
+        uint256 totalStaked = getTotalStakedAtEpoch(epoch);
+        uint256 userStaked = getUserStakedAtEpoch(user, epoch);
+        uint256 totalReward = _systemFeeMap[epoch];
+        if (totalStaked > 0) {
+            uint256 userReward = (userStaked * totalReward) / totalStaked;
+            updateReward(user, epoch, userReward);
         }
-        // return some dust back to the acc
-        _systemFee = amountToPay - totalPaid;
+    }
+
+    function getSystemReward(address user, uint256 epoch) public view returns (uint256) {
+        uint256 totalStaked = getTotalStakedAtEpoch(epoch);
+        uint256 userStaked = getUserStakedAtEpoch(user, epoch);
+        uint256 totalReward = _systemFeeMap[epoch];
+        if (totalStaked == 0) return 0;
+        return (userStaked * totalReward) / totalStaked;
+    }
+
+    function withdrawMultipleEpochRewards(uint256[] calldata epochs) external {
+        uint256 totalReward = 0;
+        uint256 currentEpoch  = _stakingContract.currentEpoch();
+        for (uint i = 0; i < epochs.length; i++) {
+            uint256 epoch = epochs[i];
+            require(epoch < currentEpoch ,"epoch is too height");
+            uint256 reward = _rewardSnapshotMap[epoch][msg.sender];
+            if (reward > 0) {
+                totalReward += reward;
+                _rewardSnapshotMap[epoch][msg.sender] = 0;
+            }
+        }
+
+        require(totalReward > 0, "No rewards available");
+
+        // 安全地转移奖励给用户
+        (bool success, ) = msg.sender.call{value: totalReward}("");
+        require(success, "Reward transfer failed");
+    }
+
+    function withdrawRewards(uint256 epoch) external {
+        uint256 currentEpoch  = _stakingContract.currentEpoch();
+        require(epoch < currentEpoch ,"epoch is too height");
+        calculateAndUpdateUserReward(msg.sender, epoch);
+
+        uint256 reward = _rewardSnapshotMap[epoch][msg.sender];
+        require(reward > 0, "No rewards available");
+        _rewardSnapshotMap[epoch][msg.sender] = 0;
+
+        // 安全地转移奖励给用户
+        (bool success, ) = msg.sender.call{value: reward}("");
+        require(success, "Reward transfer failed");
     }
 }

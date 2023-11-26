@@ -8,7 +8,4 @@ contract FakeSystemReward is SystemReward {
     constructor(bytes memory ctor) SystemReward(ctor) {
     }
 
-    function updateDistributionShare(address[] calldata accounts, uint16[] calldata shares) external virtual override {
-        _updateDistributionShare(accounts, shares);
-    }
 }
