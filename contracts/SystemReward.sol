@@ -22,7 +22,7 @@ contract SystemReward is ISystemReward, InjectorContextHolder {
     }
 
     receive() external payable {
-        require(msg.sender == address(_stakingContract),"address is not staking address");
+//        require(msg.sender == address(_stakingContract),"address is not staking address");
         // increase total system fee
         uint256 currentEpoch  = _stakingContract.currentEpoch();
         _systemFeeMap[currentEpoch] = address(this).balance;
